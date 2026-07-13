@@ -1,0 +1,22 @@
+version: '3.8'
+
+# Convenience: spins up a local PostgreSQL instance for development.
+# Usage: docker compose up -d
+# Then, from backend/: npm run migrate && npm run dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sms_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: student_management
+    ports:
+      - '5432:5432'
+    volumes:
+      - sms_pgdata:/var/lib/postgresql/data
+
+volumes:
+  sms_pgdata:

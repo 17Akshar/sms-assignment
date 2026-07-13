@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-paper text-ink font-body antialiased;
+}
+
+::selection {
+  @apply bg-gold/30;
+}
+
+/* Visible keyboard focus ring, kept subtle but unmissable */
+:focus-visible {
+  outline: 2px solid theme('colors.sage.DEFAULT');
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.input {
+  @apply w-full rounded-sm border border-ink/20 bg-paper px-3 py-2 text-sm text-ink placeholder:text-slate/60 focus:border-sage focus:ring-1 focus:ring-sage transition-colors;
+}
+
+.ledger-divider {
+  background-image: repeating-linear-gradient(
+    to right,
+    theme('colors.ink.DEFAULT') 0,
+    theme('colors.ink.DEFAULT') 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  height: 1px;
+  opacity: 0.15;
+}
