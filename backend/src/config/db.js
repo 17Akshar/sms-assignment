@@ -2,26 +2,31 @@ const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
+const wantsSsl =
+  process.env.PGSSL === 'true' ||
+  process.env.PGSSLCA ||
+  process.env.PGSSLCERT ||
+  (process.env.DATABASE_URL || '').includes('sslmode=require');
+
 const sslConfig = (() => {
-  // CA certificate as inline string (works on Vercel serverless)
+  if (!wantsSsl) return undefined;
   if (process.env.PGSSLCA) {
     return { ca: process.env.PGSSLCA, rejectUnauthorized: true };
   }
-  // CA certificate from file (local dev only)
   if (process.env.PGSSLCERT) {
     return { ca: fs.readFileSync(path.resolve(process.env.PGSSLCERT)), rejectUnauthorized: true };
   }
-  // Quick mode: skip certificate verification
-  if (process.env.PGSSL === 'true' || process.env.DATABASE_URL?.includes('sslmode=require')) {
-    return { rejectUnauthorized: false };
-  }
-  return undefined;
+  return { rejectUnauthorized: false };
 })();
 
-// Supports either a single DATABASE_URL or discrete PG* env vars.
+function cleanUrl(url) {
+  if (!url) return url;
+  return url.replace(/[?&]sslmode=require/, '?').replace(/\?$/, '');
+}
+
 const pool = process.env.DATABASE_URL
   ? new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: cleanUrl(process.env.DATABASE_URL),
       ...(sslConfig && { ssl: sslConfig }),
     })
   : new Pool({
